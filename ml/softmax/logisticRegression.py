@@ -91,7 +91,60 @@ class LogisticRegression(object):
         else:
             raise NotImplementedError()
 
+
+def load_data(dataset):
+    # dataset是数据集的路径，程序首先检测该路径下有没有MNIST数据集，没有的话就下载MNIST数据集
+    # 这一部分就不解释了，与softmax回归算法无关。
+    data_dir, data_file = os.path.split(dataset)
+    if data_dir == "" and not os.path.isfile(dataset):
+        # Check if dataset is in the data directory.
+        new_path = os.path.join(
+            os.path.split(__file__)[0],
+            "..",
+            "data",
+            dataset
+        )
+        if os.path.isfile(new_path) or data_file == 'mnist.pkl.gz':
+            dataset = new_path
+
+    if (not os.path.isfile(dataset)) and data_file == 'mnist.pkl.gz':
+        import urllib
+        origin = (
+            'http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz'
+        )
+        print 'Downloading data from %s' % origin
+        urllib.urlretrieve(origin, dataset)
+
+    print '... loading data'
+    # 以上是检测并下载数据集mnist.pkl.gz，不是本文重点。下面才是load_data的开始
+
+    # 从"mnist.pkl.gz"里加载train_set, valid_set, test_set，它们都是包括label的
+    # 主要用到python里的gzip.open()函数,以及 cPickle.load()。
+    # ‘rb’表示以二进制可读的方式打开文件
+    f = gzip.open(dataset, 'rb')
+    train_set, valid_set, test_set = cPickle.load(f)
+    f.close()
+
+    # 将数据设置成shared variables，主要时为了GPU加速，只有shared variables才能存到GPU memory中
+    # GPU里数据类型只能是float。而data_y是类别，所以最后又转换为int返回
+    def shared_dataset(data_xy, borrow=True):
+        data_x, data_y = data_xy
+        shared_x = theano.shared(numpy.asarray(data_x,
+                                               dtype=theano.config.floatX),
+                                 borrow=borrow)
+        shared_y = theano.shared(numpy.asarray(data_y,
+                                               dtype=theano.config.floatX),
+                                 borrow=borrow)
+        return shared_x, T.cast(shared_y, 'int32')
+
+    test_set_x, test_set_y = shared_dataset(test_set)
+    valid_set_x, valid_set_y = shared_dataset(valid_set)
+    train_set_x, train_set_y = shared_dataset(train_set)
+
+    rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y),
+            (test_set_x, test_set_y)]
+    return rval
+
 if __name__ == "__main__":
-    print T.arange(1,10,1,'int64')
-    print theano.__version__
+    load_data('D:/10000347/Downloads/machine_learning/data/mnist/mnist.pkl.gz');
     pass
