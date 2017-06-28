@@ -242,10 +242,10 @@ def process_json_data_from_tencnetNews(content):
                 # 昵称
                 nick = temp['nick']
                 # 头像
-                avatar = temp['avatar']
+                avatar = temp['head']
                 tempList.append((c_content,ctime,praise_count,nick,avatar))
             res.append((topic,tempList))
-        return (jobId,userId,source,keyWord,timeStart,timeEnd,res)
+        return (keyWord,timeStart,timeEnd,jobId,userId,source,res)
     except Exception as e:  # 使用as将异常对象，并将其赋值给一个标识符
         log.logger.error('process json data of qq error : ' + str(e))
 

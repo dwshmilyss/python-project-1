@@ -266,19 +266,27 @@ def calc_single_sentiment_score(review):
 import time
 #时间戳转格式化字符串
 def timeStamp_transform_str(timeStamp):
-    timeArray = time.localtime(timeStamp)
-    otherStyleTime = time.strftime("%Y-%m-%d %H:%M", timeArray)
-    return otherStyleTime
+    try:
+        timeArray = time.localtime(timeStamp)
+        otherStyleTime = time.strftime("%Y-%m-%d %H:%M", timeArray)
+        return otherStyleTime
+    except Exception as e:
+        log.logger.error('timestamp transform to string error : ' + str(e))
+    return time.strftime("%Y-%m-%d %H:%M",time.localtime(time.time()))
 
 #格式化时间字符串
 def str_transform_format_str(timeStr):
-    # tm = "2013-10-10 23:40:00"
-    # timeArray = time.strptime(timeStr,"%Y-%m-%d %H:%M:%S")
-    #这里的格式一定要严格的对应到原字符串的格式
-    # tm = "2013-10-10 23:40"
-    timeArray = time.strptime(timeStr,"%Y-%m-%d %H:%M")
-    otherStyleTime = time.strftime("%Y-%m-%d %H:%M", timeArray)
-    return otherStyleTime
+    try:
+        # tm = "2013-10-10 23:40:00"
+        # timeArray = time.strptime(timeStr,"%Y-%m-%d %H:%M:%S")
+        #这里的格式一定要严格的对应到原字符串的格式
+        # tm = "2013-10-10 23:40"
+        timeArray = time.strptime(timeStr,"%Y-%m-%d %H:%M")
+        otherStyleTime = time.strftime("%Y-%m-%d %H:%M", timeArray)
+        return otherStyleTime
+    except Exception as e:
+        log.logger.error('fromat time error : ' + str(e))
+    return time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time()))
 
 
 '''
@@ -307,7 +315,8 @@ def calc_score_for_tencentNews(topic_list,jobId):
                     else:
                         sumMap[k] = v
             #一个topic的计算结果
-            one_topic_res = (topic_title,topic_content,topic_pos,topic_neg,topic_pos - topic_neg,str_transform_format_str(topic_time),topic_url)
+            temp_topic_time = (str_transform_format_str(topic_time) if topic_time else time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time())))
+            one_topic_res = (topic_title,topic_content,topic_pos,topic_neg,topic_pos - topic_neg,temp_topic_time,topic_url)
             #一个话题评论的情感分计算结果
             for comment in topic[1]:
                 # 计算一个评论的内容的得分
@@ -323,7 +332,9 @@ def calc_score_for_tencentNews(topic_list,jobId):
                 comment_praise_count = int(comment[2])#点赞数
                 comment_nick = comment[3]
                 comment_avatar = comment[4]
-                one_topic_comment_res.append((comment[0],comment_pos,comment_neg,(comment_pos - comment_neg)*comment_praise_count,comment_praise_count,timeStamp_transform_str(comment[1])),comment_nick,comment_avatar)
+                #如果时间为空 就给定一个默认值
+                temp_comment_time = (timeStamp_transform_str(comment[1]) if comment[1] else time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time())))
+                one_topic_comment_res.append((comment[0],comment_pos,comment_neg,(comment_pos - comment_neg)*comment_praise_count,comment_praise_count,temp_comment_time,comment_nick,comment_avatar))
             all_topic_res.append((one_topic_res,one_topic_comment_res))
             one_topic_comment_res = []
         #去除中英文的感叹号(在停用词里并没有过滤感叹号，因为感叹号参与了情感值的计算)
