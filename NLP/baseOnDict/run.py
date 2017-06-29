@@ -47,12 +47,12 @@ def getRedisData():
         try:
             # 如果队列为空，那么此处返回一个空数组
             #conda install MySQL-python linux 下安装mysqldb
-            jsonArray = r.lrange("taskscraperlist", 0, 0)
+            # jsonArray = r.lrange("taskscraperlist", 0, 0)
             # TODO 当所有的操作都完成后，并且数据已经正确的处理完毕，可以把redis队列中的key删掉了
-            # jsonArray = r.rpop("taskscraperlist")
+            jsonData = r.rpop("taskscraperlist")
             # 这里如果是空数组的话 就是false
-            if jsonArray:
-                jsonData = jsonArray[0]
+            if jsonData:
+                # jsonData = jsonArray[0]
                 print jsonData
                 '''
                     解析json
@@ -75,8 +75,8 @@ def getRedisData():
 
                 for one_topic in topics:
                     # print到控制台后将unicode转换成中文
-                    print "\n".join(
-                        [" ".join([str(i).replace('u\'', '\'').decode("unicode-escape") for i in one_topic])])
+                    # print "\n".join(
+                    #     [" ".join([str(i).replace('u\'', '\'').decode("unicode-escape") for i in one_topic])])
                     topic = one_topic[0]
                     # 超过数据库字段长度要截取[0:250]从0截取到250(不包含250)
                     topic_title = topic[0][0:250] + "..." if len(topic[0]) > 255 else topic[0]
@@ -95,6 +95,8 @@ def getRedisData():
                         #     comment[3]) + "," + str(comment[4]) + "," + comment[5]
                         comment_content = comment[0][0:995] + "..." if len(comment[0]) > 1000 else comment[0]
                         comment_score = round(comment[3], 2)
+                        # TODO 线上关掉
+                        log.logger.info("comment_score = "+str(comment_score))
                         comment_list.append((comment_content, comment_score, comment[5], topic_id, comment[4], jobId, source,
                                              comment[6], comment[7]))
                         # print "\n".join([" ".join([str(i).replace('u\'', '\'').decode("unicode-escape") for i in comments])])
@@ -103,6 +105,7 @@ def getRedisData():
         except Exception as e:
             # log.logger.error("process redis data error : " + str(e))
             traceback.print_exc()
+        # break
 
 
 def storeToMysql():
@@ -166,6 +169,8 @@ def storeCommentToMysql(isOne, data):
         conn.commit()
     except Exception:
         log.logger.error("insert comment data to mysql error : " + traceback.format_exc())
+        # for i in data:
+        #     log.logger.error("score = "+str(i[1]))
         conn.rollback()
     conn_util.closeConn(conn, cur)
 
@@ -182,5 +187,9 @@ if __name__ == "__main__":
 
     getRedisData()
     # storeTopicToMysql1()
-
+    # pool = redis.ConnectionPool(host='10.21.3.127', port=6379, db=0)
+    # r = redis.Redis(connection_pool=pool)
+    # a = r.rpop("test111")
+    # print a
+    # print round(12.1,2)
     pass

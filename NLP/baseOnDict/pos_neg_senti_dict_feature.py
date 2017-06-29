@@ -218,6 +218,8 @@ def calc_single_sentiment_score(review):
                     s = 0  # sentiment word position
                     poscount = 0  # count a positive word
                     negcount = 0  # count a negative word
+                    pos_max = 1000
+                    neg_max = 1000
 
                     # 遍历句子中的每一个词
                     for word in seg_sent:
@@ -231,13 +233,13 @@ def calc_single_sentiment_score(review):
                             # 正情感分+1
                             poscount += 1
                             for w in seg_sent[s:i]:
-                                poscount = match(w, poscount)
+                                poscount = pos_max if round(match(w, poscount),2) > pos_max else round(match(w, poscount),2)
                             a = i + 1
 
                         elif word in negDictDataAll:
                             negcount += 1
                             for w in seg_sent[s:i]:
-                                negcount = match(w, negcount)
+                                negcount = neg_max if round(match(w, negcount),2) > neg_max else round(match(w, negcount),2)
                             a = i + 1
 
                         # Match "!" in the review, every "!" has a weight of +2
@@ -334,7 +336,10 @@ def calc_score_for_tencentNews(topic_list,jobId):
                 comment_avatar = comment[4]
                 #如果时间为空 就给定一个默认值
                 temp_comment_time = (timeStamp_transform_str(comment[1]) if comment[1] else time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time())))
-                one_topic_comment_res.append((comment[0],comment_pos,comment_neg,(comment_pos - comment_neg)*comment_praise_count,comment_praise_count,temp_comment_time,comment_nick,comment_avatar))
+                comment_score = (comment_pos - comment_neg)*comment_praise_count
+                #TODO 线上关掉
+                log.logger.info(comment[0]+",comment_pos = "+str(comment_pos)+",comment_neg = "+str(comment_neg)+",comment_praise_count = "+str(comment_praise_count)+",comment_score = "+str(comment_score))
+                one_topic_comment_res.append((comment[0],comment_pos,comment_neg,comment_score,comment_praise_count,temp_comment_time,comment_nick,comment_avatar))
             all_topic_res.append((one_topic_res,one_topic_comment_res))
             one_topic_comment_res = []
         #去除中英文的感叹号(在停用词里并没有过滤感叹号，因为感叹号参与了情感值的计算)
@@ -372,36 +377,7 @@ def storeWordCloudToMysql(data):
     conn_util.closeConn(conn, cur)
 
 if __name__ == "__main__":
-    # storeToMysql()
-    # x = 1
-    # print (x == 1 and "True") or "False"
-    # print "Fire" if True else "Water"
-    # s = '01234'
-    # print s[0:3]
-
-    map = {}
-    arr = ["a", "b", "a", "b", "c", "a","！","!"]
-    for i in arr:
-        if i not in map.keys():
-            map[i] = 1
-        else:
-            map[i] = map[i] + 1
-    # a = sorted(map.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)[0:2]
-    # print a
-    # jsonStr = json.dumps(a, ensure_ascii=False, encoding='UTF-8')
-    # print jsonStr
-    # storeWordCloudToMysql(1,jsonStr)
-    # for (k, v) in map.items():
-    #     print "dict[%s] =" % k, v
-    # if map.has_key('！'):
-    #     print '！'
-    #     del map['！']
-    # if map.has_key('!'):
-    #     del map['!']
-    #     print '!'
-    # # map.pop('d')
-    # print "---------------"
-    # for (k, v) in map.items():
-    #     print "dict[%s] =" % k, v
-    print len(u"我")
+    str = u"我害怕了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还………无聊"
+    a = calc_single_sentiment_score(str)
+    print a
     pass
