@@ -20,7 +20,7 @@ from xml.sax.saxutils import escape, quoteattr
 class MySolrPy():
     def __init__(self, solrurl):
         self.solrurl = solrurl + '/update/'
-        print self.solrurl
+        # print self.solrurl
         self.docs = []
         self.size = 0
         # 添加新的文档
