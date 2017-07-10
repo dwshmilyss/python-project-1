@@ -377,7 +377,8 @@ def storeWordCloudToMysql(data):
     conn_util.closeConn(conn, cur)
 
 if __name__ == "__main__":
-    str = u"我害怕了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还………无聊"
-    a = calc_single_sentiment_score(str)
-    print a
+    # str = u"我害怕了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还………无聊"
+    # a = calc_single_sentiment_score(str)
+    # print a
+    print timeStamp_transform_str("187")
     pass

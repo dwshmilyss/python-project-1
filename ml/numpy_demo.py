@@ -37,5 +37,6 @@ class Main():
 if __name__ == "__main__":
     a = np.random.random(10)
     print a
-    a.sort()
+
+    np.linspace(1,11,10,endpoint=False)
     pass

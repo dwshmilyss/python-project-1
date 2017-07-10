@@ -55,7 +55,9 @@ class DataUtils(object):
 
         self._tag = '>'
         self._twoBytes = 'II'
+        #‘>IIII’指的是使用大端法读取4个unsinged int 32 bit integer
         self._fourBytes = 'IIII'
+        #‘ > 784B’指的是使用大端法读取784个unsigned byte
         self._pictureBytes = '784B'
         self._labelByte = '1B'
         self._twoBytes2 = self._tag + self._twoBytes
@@ -74,18 +76,20 @@ class DataUtils(object):
         numMagic, numImgs, numRows, numCols = struct.unpack_from(self._fourBytes2, \
                                                                  buf, \
                                                                  index)
-        print numImgs
+        # print numMagic
+        # print numImgs
+        # print numRows
+        # print numCols
         index += struct.calcsize(self._fourBytes)
         images = []
-        for i in range(numImgs):
-            pass
-            # imgVal = struct.unpack_from(self._pictureBytes2, buf, index)
-            # index += struct.calcsize(self._pictureBytes2)
-            # imgVal = list(imgVal)
-            # for j in range(len(imgVal)):
-            #     if imgVal[j] > 1:
-            #         imgVal[j] = 1
-            # images.append(imgVal)
+        for i in xrange(numImgs):
+            imgVal = struct.unpack_from(self._pictureBytes2, buf, index)
+            index += struct.calcsize(self._pictureBytes2)
+            imgVal = list(imgVal)
+            for j in range(len(imgVal)):
+                if imgVal[j] > 1:
+                    imgVal[j] = 1
+            images.append(imgVal)
         return np.array(images)
 
     def getLabel(self):

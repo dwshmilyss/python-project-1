@@ -20,10 +20,10 @@ import sys
 
 
 def main():
-    trainfile_X = 'D:/10000347/Downloads/machine_learning/data/mnist/train-images-idx3-ubyte.gz'
-    trainfile_y = 'D:/10000347/Downloads/machine_learning/data/mnist/train-labels-idx1-ubyte.gz'
-    testfile_X = 'D:/10000347/Downloads/machine_learning/data/mnist/t10k-images-idx3-ubyte.gz'
-    testfile_y = 'D:/10000347/Downloads/machine_learning/data/mnist/t10k-labels-idx1-ubyte.gz'
+    trainfile_X = './data/mnist/train-images.idx3-ubyte'
+    trainfile_y = './data/mnist/train-labels.idx1-ubyte'
+    testfile_X = './data/mnist/t10k-images.idx3-ubyte'
+    testfile_y = './data/mnist/t10k-labels.idx1-ubyte'
     train_X = DataUtils(filename=trainfile_X).getImage()
     train_y = DataUtils(filename=trainfile_y).getLabel()
     test_X = DataUtils(testfile_X).getImage()
@@ -49,8 +49,4 @@ def testKNN():
 
 
 if __name__ == "__main__":
-    print sys.maxint
-    for i in range(sys.maxint):
-        pass
-    # 2055376946
-    # testKNN()
+    testKNN()
