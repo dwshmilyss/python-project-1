@@ -57,6 +57,8 @@ for url in urls:  # 基于for循环，抓取出所有满足条件的标签和属
     res = requests.get(url)
     res = res.text.encode(res.encoding).decode('utf-8')
     soup = BeautifulSoup(res, 'html.parser')
+    print soup
+    exit()
     find_all = soup.select('#js-ershoufangList > div.content-wrapper > div.content > div.m-list > ul > li')
     print len(find_all)
     for i in range(len(find_all)):  # 基于for循环，抓取出所需的各个字段信息
