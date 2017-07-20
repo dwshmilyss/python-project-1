@@ -13,9 +13,9 @@
 @time: 2017/6/26 上午11:49 
 """
 
-import sys
 import numpy as np
 
+import sys
 default_encoding = "utf-8"
 if (default_encoding != sys.getdefaultencoding()):
     reload(sys)
