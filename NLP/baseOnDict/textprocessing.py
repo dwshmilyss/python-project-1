@@ -214,7 +214,6 @@ def process_json_data_from_tencnetNews(content):
         keyWord = jsonData['word']
         timeStart = jsonData['time_start']
         timeEnd = jsonData['time_end']
-        #TODO 这里要加上3个值，爬虫写入redis的时候也要加上
         userId = jsonData['userId'] #用户id
         jobId = jsonData['jobId']# 方案ID
         source = jsonData['source'] #来源
@@ -246,6 +245,35 @@ def process_json_data_from_tencnetNews(content):
                 tempList.append((c_content,ctime,praise_count,nick,avatar))
             res.append((topic,tempList))
         return (keyWord,timeStart,timeEnd,jobId,userId,source,res)
+    except Exception as e:  # 使用as将异常对象，并将其赋值给一个标识符
+        log.logger.error('process json data of qq error : ' + str(e))
+
+
+'''
+    处理redis中的评论数据
+    return (任务ID,话题ID,来源,[评论内容，评论发布时间，点赞数,昵称,头像])
+'''
+def process_json_data_from_comment(content):
+    try:
+        jsonData = json.loads(content.decode("utf8"))
+        jobId = jsonData['jobId']  # 方案ID
+        source = jsonData['source']  # 来源
+        topicId = jsonData['topicId']  # 话题ID
+        # 遍历话题列表
+        tempList = []
+        for comment in jsonData['comments']:
+            # 评论时间戳
+            ctime = comment['time']
+            # 评论内容
+            c_content = comment['content']
+            # 点赞数
+            praise_count = comment['up']
+            # 昵称
+            nick = comment['nick']
+            # 头像
+            avatar = comment['head']
+            tempList.append((c_content,ctime,praise_count,nick,avatar))
+        return (jobId, topicId,source, tempList)
     except Exception as e:  # 使用as将异常对象，并将其赋值给一个标识符
         log.logger.error('process json data of qq error : ' + str(e))
 
@@ -350,6 +378,9 @@ def write_excel_data(filepath,sheetnum,stratRow,columnNum,dataSet):
     # ws.write(0, 1, 'huang')  # 在1行2列写入huang
     # ws.write(1, 0, 'xuan')  # 在2行1列写入xuan
     wb.save(os.path.splitext(filepath)[0] + '_out.xls')  # 保存
+
+
+
 
 
 if __name__ == "__main__":

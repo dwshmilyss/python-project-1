@@ -53,7 +53,7 @@ def getRedisData():
             # 这里如果是空数组的话 就是false
             if jsonData:
                 # jsonData = jsonArray[0]
-                print jsonData
+                #  print jsonData
                 '''
                     解析json
                     return (查询关键词，开始时间，结束时间，JOB_ID，USER_ID，来源，[((话题标题，话题发布时间，话题内容，原文链接),[评论内容，评论发布时间，点赞数，昵称，头像])...])
@@ -96,12 +96,13 @@ def getRedisData():
                         comment_content = comment[0][0:995] + "..." if len(comment[0]) > 1000 else comment[0]
                         comment_score = round(comment[3], 2)
                         # TODO 线上关掉
-                        log.logger.info("comment_score = "+str(comment_score))
+                        #log.logger.info("comment_score = "+str(comment_score))
                         comment_list.append((comment_content, comment_score, comment[5], topic_id, comment[4], jobId, source,
                                              comment[6], comment[7]))
                         # print "\n".join([" ".join([str(i).replace('u\'', '\'').decode("unicode-escape") for i in comments])])
                     storeCommentToMysql(False, comment_list)
                     comment_list = []
+                print 'success!!!' 
         except Exception as e:
             # log.logger.error("process redis data error : " + str(e))
             traceback.print_exc()

@@ -197,7 +197,7 @@ def sumup_sentence_sentiment_score(score_list_byId):
 '''
     输入一段文本，切割成句子后计算每个句子的情感值
     :parameter review : 一段文本
-    :return : [Pos, Neg, AvgPos, AvgNeg, StdPos, StdNeg]
+    :return : [Pos, Neg, {word:cn}]
 '''
 def calc_single_sentiment_score(review):
     wordMap = {}
@@ -307,7 +307,7 @@ def calc_score_for_tencentNews(topic_list,jobId):
                 计算topic的情感分(利用topic的content)
             '''
             (topic_title, topic_time, topic_content,topic_url) = topic[0]
-            #计算话题的内容情感分
+            #计算话题的内容情感分  [Pos, Neg, {word:cn}]
             (topic_pos,topic_neg,map1) = calc_single_sentiment_score(topic_content)
             #统计词频
             for k, v in map1.iteritems():
@@ -338,7 +338,7 @@ def calc_score_for_tencentNews(topic_list,jobId):
                 temp_comment_time = (timeStamp_transform_str(comment[1]) if comment[1] else time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time())))
                 comment_score = (comment_pos - comment_neg)*comment_praise_count
                 #TODO 线上关掉
-                log.logger.info(comment[0]+",comment_pos = "+str(comment_pos)+",comment_neg = "+str(comment_neg)+",comment_praise_count = "+str(comment_praise_count)+",comment_score = "+str(comment_score))
+                # log.logger.info(comment[0]+",comment_pos = "+str(comment_pos)+",comment_neg = "+str(comment_neg)+",comment_praise_count = "+str(comment_praise_count)+",comment_score = "+str(comment_score))
                 one_topic_comment_res.append((comment[0],comment_pos,comment_neg,comment_score,comment_praise_count,temp_comment_time,comment_nick,comment_avatar))
             all_topic_res.append((one_topic_res,one_topic_comment_res))
             one_topic_comment_res = []
@@ -365,6 +365,63 @@ def calc_score_for_tencentNews(topic_list,jobId):
         traceback.print_exc()
     return  all_topic_res
 
+
+'''
+    处理爬取到的评论数据，计算情感值
+    文本数据格式：[((topic_title,topic_time,topic_content,topic_url),[(comment_content,comment_time,comment_praise_count,comment_nick,comment_avatar),...]),...]
+    return : [((topic_title,topic_content,topic_pos,topic_neg,topic_calc_score,topic_time,topic_url),[(comment_content,comment_pos,comment_neg,comment_calc_score,comment_praise_count,comment_time,comment_nick,comment_avatar)])]
+'''
+def calc_score_for_comment(comment_list,jobId):
+    try:
+        sumMap = {}
+        one_topic_comment_res = []
+        #遍历所有话题
+        for comment in comment_list:
+            # 计算一个评论的内容的得分  [Pos, Neg, {word:cn}]
+            (comment_pos,comment_neg,map2) = calc_single_sentiment_score(comment[0])
+            # 统计词频
+            for k, v in map2.iteritems():
+                if len(k) > 1:
+                    if k in sumMap.keys():
+                        sumMap[k] = sumMap[k] + v
+                    else:
+                        sumMap[k] = v
+            #因为有点赞数，所以把点赞数作为系数*情感值
+            comment_praise_count = int(comment[2])#点赞数
+            comment_nick = comment[3]
+            comment_avatar = comment[4]
+            #如果时间为空 就给定一个默认值
+            temp_comment_time = (timeStamp_transform_str(comment[1]) if comment[1] else time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time())))
+            comment_score = (comment_pos - comment_neg)*comment_praise_count
+            #TODO 线上关掉
+            # log.logger.info(comment[0]+",comment_pos = "+str(comment_pos)+",comment_neg = "+str(comment_neg)+",comment_praise_count = "+str(comment_praise_count)+",comment_score = "+str(comment_score))
+            one_topic_comment_res.append((comment[0],comment_pos,comment_neg,comment_score,comment_praise_count,temp_comment_time,comment_nick,comment_avatar))
+        #去除中英文的感叹号(在停用词里并没有过滤感叹号，因为感叹号参与了情感值的计算)
+        if sumMap.has_key(u'！'):
+            print '！'
+            del sumMap[u'！']
+        if sumMap.has_key('!'):
+            del sumMap['!']
+            print '!'
+        #循环完成后对map的value按降序排序，并截取前20
+        arr = sorted(sumMap.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)[0:20]
+        #转换成json字符串
+        # data = json.dumps(arr, ensure_ascii=False, encoding='UTF-8')
+        # data = json.dumps(arr, ensure_ascii=False)
+        wc_res = []
+        #存入mysql
+        for temp in arr:
+            wc_res.append((jobId,temp[0],temp[1]))
+        storeWordCloudToMysql(wc_res)
+        #存入数据库
+    except Exception as e:
+        # log.logger.error("process redis data error : "+str(e))
+        traceback.print_exc()
+    return  one_topic_comment_res
+
+'''
+ 词云存入mysql
+'''
 def storeWordCloudToMysql(data):
     (conn,cur) = conn_util.createConn()
     sqli = "insert into WordCloud(job_id,word,cn) values(%s,%s,%s)"
