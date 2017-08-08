@@ -1,0 +1,3 @@
+Mon, 07 Aug 2017 16:26:12 loggingDemo.py[line:40] DEBUG This is debug message
+Mon, 07 Aug 2017 16:26:12 loggingDemo.py[line:41] INFO This is info message
+Mon, 07 Aug 2017 16:26:12 loggingDemo.py[line:42] WARNING This is warning message

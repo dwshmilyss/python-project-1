@@ -34,9 +34,22 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 #################################################################################################
 
-
+from sklearn.datasets import load_iris
+from numpy import vstack, array, nan
 if __name__ == "__main__":
     logging.debug('This is debug message')
     logging.info('This is info message')
     logging.warning('This is warning message')
+    iris = load_iris()
+    from sklearn.feature_selection import SelectKBest
+    from scipy.stats import pearsonr
+
+    print "利用相关系数法过滤后的前5个样本的特征："
+    print "=========================="
+    # print (SelectKBest(lambda X, Y: array(map(lambda x:pearsonr(x, Y), X.T)).T, k=2).fit(iris.data,iris.target)[0:5])
+    # a = SelectKBest(lambda X, Y: array(map(lambda x: pearsonr(x, Y), X.T)).T, k=2)
+    # print a.fit_transform(iris.data, iris.target)
+    from sklearn.feature_selection import chi2
+    b = SelectKBest(chi2, k=2).fit_transform(iris.data, iris.target)
+    print "=========================="
     pass
