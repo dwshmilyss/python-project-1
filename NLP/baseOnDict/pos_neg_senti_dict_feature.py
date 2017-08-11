@@ -264,17 +264,17 @@ def calc_single_sentiment_score(review):
         return (0,0,wordMap)
 
 
-
+import re
 import time
 #时间戳转格式化字符串
 def timeStamp_transform_str(timeStamp):
     try:
         timeArray = time.localtime(timeStamp)
-        otherStyleTime = time.strftime("%Y-%m-%d %H:%M", timeArray)
+        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         return otherStyleTime
     except Exception as e:
         log.logger.error('timestamp transform to string error : ' + str(e))
-    return time.strftime("%Y-%m-%d %H:%M",time.localtime(time.time()))
+    return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))
 
 #格式化时间字符串
 def str_transform_format_str(timeStr):
@@ -283,12 +283,22 @@ def str_transform_format_str(timeStr):
         # timeArray = time.strptime(timeStr,"%Y-%m-%d %H:%M:%S")
         #这里的格式一定要严格的对应到原字符串的格式
         # tm = "2013-10-10 23:40"
-        timeArray = time.strptime(timeStr,"%Y-%m-%d %H:%M")
-        otherStyleTime = time.strftime("%Y-%m-%d %H:%M", timeArray)
+        pattern_ymd_hms = re.compile(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}')
+        pattern_ymd_hm = re.compile(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}')
+        pattern_ymd = re.compile(r'\d{4}-\d{2}-\d{2}')
+        if pattern_ymd_hms.match(timeStr):
+            timeArray = time.strptime(timeStr,"%Y-%m-%d %H:%M:%S")
+            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+        elif pattern_ymd_hm.match(timeStr):
+            timeArray = time.strptime(timeStr,"%Y-%m-%d %H:%M")
+            otherStyleTime = time.strftime("%Y-%m-%d %H:%M", timeArray)
+        elif pattern_ymd.match(timeStr):
+            timeArray = time.strptime(timeStr, "%Y-%m-%d")
+            otherStyleTime = time.strftime("%Y-%m-%d", timeArray)
         return otherStyleTime
     except Exception as e:
         log.logger.error('fromat time error : ' + str(e))
-    return time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time()))
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
 
 
 '''
@@ -437,5 +447,7 @@ if __name__ == "__main__":
     # str = u"我害怕了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还缪了还………无聊"
     # a = calc_single_sentiment_score(str)
     # print a
-    print timeStamp_transform_str("187")
+    print str_transform_format_str("2011-09-28")
+
+    print timeStamp_transform_str(1483293825)
     pass
