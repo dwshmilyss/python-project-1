@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 #导入需要的python模块httplib，用来模拟提交http请求，详细的用法可见python帮助手册
+'''
+请求微软小冰的API进行人脸识别和颜值打分
+'''
 
 import httplib
 import base64

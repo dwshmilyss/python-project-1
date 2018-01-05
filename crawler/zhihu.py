@@ -29,7 +29,7 @@ import requests
 try:
     import cookielib
 except:
-    import http_test.cookiejar as cookielib
+    import http_microsoft_xiaobing_api.cookiejar as cookielib
 import re
 import time
 import os.path
