@@ -34,48 +34,46 @@ class Main():
 
 '''
 最小交替二乘法
-这个方法有问题，应该是公式的引用有错误
+这个方法有问题，得到的结果矩阵和梯度下降法得到的矩阵有明显差别，而且这个还会得到负值
+有待进一步查明原因
 R为m*n的原始评分矩阵
 P为m*k的低秩矩阵
 Q为n*k的低秩矩阵
 '''
-def als(R, P, Q, K, steps=5000, beta=0.01):
-    # 转置n*k的矩阵
-    Q = Q.T
-    m = len(R)
-    n = len(R[0])
+
+
+def als(R, K, steps=5000, beta=0.01):
+    m, n = np.shape(R)
+    P = np.mat(np.random.rand(m, K))
+    Q = np.mat(np.random.rand(n, K))
     for step in xrange(steps):
-        # 把Q固定，更新P
         for i in xrange(m):
-            u=0
-            v=0
             for j in xrange(n):
-                if R[i][j] > 0:
-                    # np.dot(P,P.T) + beta * np.eye(len(P))
-                    u = u + R[i][j] * Q[:, j]
-                    v = v + sum(Q[:, j] ** 2) + beta
-            P[i, :] = u / v
-        # 把P固定，更新Q
-        for j in xrange(n):
-            for i in xrange(m):
-                if R[i][j] > 0:
-                    u = u + R[i][j] * P[i, :]
-                    v = v + sum(P[i, :] ** 2) + beta
-            Q[:, j] = u / v
-
-        eR = np.dot(P, Q)
+                if R[i, j] > 0:
+                    # 把P固定，更新Q
+                    temp = (np.dot(P.T, P) + beta * np.eye(K)).I
+                    temp1 = temp * P.T * R[:, j]
+                    Q[j, :] = temp1.T
+            # Q固定 更新P
+            P[i, :] = ((np.dot(Q.T, Q) + beta * np.eye(K)).I * Q.T * R[i, :].T).T
+        eR = np.dot(P, Q.T)
         e = 0
+        cn = 0
+        sum = 0
         for i in xrange(m):
             for j in xrange(n):
-                if R[i][j] > 0:
-                    e = e + pow(R[i][j] - np.dot(P[i, :], Q[:, j]), 2)
-                    e = e + (beta / 2) * (sum(P[i, :] ** 2) + sum(Q[:, j] ** 2))
-
+                if R[i, j] > 0:
+                    sum += pow((R[i, j] - eR[i, j]), 2)
+                    cn += 1
+                    pass
+        e = sqrt(sum/cn)
         if e < 0.001:
+            print 'loss:%f' % e
             break
         if step % 500 == 0:
             print 'loss:%f' % e
-    return P,Q
+    return P, Q
+
 
 '''
 加载一个矩阵评分数据
@@ -104,7 +102,14 @@ def load_data(path):
 '''
 
 
-def gradient_descent(R, U, V, K, maxEpoches=10000, alpha=0.001, beta=0.01):
+def gradient_descent(R, K, maxEpoches=10000, alpha=0.001, beta=0.01):
+    m = len(R)  # 用户数目
+    n = len(R[0])  # 物品数目
+    K = 2
+    # 随机生成一个m*K的矩阵(user)
+    U = np.random.rand(m, K)
+    # 随机生成一个K*n的矩阵(item)
+    V = np.random.rand(n, K)
     # 转置物品矩阵
     V = V.T
     # 开始迭代
@@ -140,6 +145,8 @@ def gradient_descent(R, U, V, K, maxEpoches=10000, alpha=0.001, beta=0.01):
 '''
 梯度下降法
 '''
+
+
 def lmf(data, K):
     m = len(data)  # 用户数目
     n = len(data[0])  # 物品数目
@@ -170,24 +177,19 @@ def lmf(data, K):
     return u, v
 
 
-
-
 if __name__ == "__main__":
     # 原始评分矩阵
     R = load_data("./data/als_test.txt")
-    m = len(R)  # 用户数目
-    n = len(R[0])  # 物品数目
+    # U, V = gradient_descent(R,K)
+    # result = np.dot(U,V)
+    # print result
+
+
+    #
+    R = np.mat(R)
     K = 2
-    # 随机生成一个m*K的矩阵(user)
-    U = np.random.rand(m, K)
-    # 随机生成一个K*n的矩阵(item)
-    V = np.random.rand(n, K)
-
-    # U, V = gradient_descent(R, U, V, K)
-    U, V = als(R, U, V, K)
-
-
-    result = np.dot(U,V)
+    U, V = als(R, K)
+    result = np.dot(U, V.T)
     print result
 
     # n = len(result)
