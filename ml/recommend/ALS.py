@@ -47,13 +47,21 @@ def als(R, K, steps=5000, beta=0.01):
     P = np.mat(np.random.rand(m, K))
     Q = np.mat(np.random.rand(n, K))
     for step in xrange(steps):
+        # for i in xrange(m):
+        #     for j in xrange(n):
+        #         if R[i, j] > 0:
+        #             # 把P固定，更新Q
+        #             temp = (np.dot(P.T, P) + beta * np.eye(K)).I
+        #             temp1 = temp * P.T * R[:, j]
+        #             Q[j, :] = temp1.T
+        #     # Q固定 更新P
+        #     P[i, :] = ((np.dot(Q.T, Q) + beta * np.eye(K)).I * Q.T * R[i, :].T).T
+        for j in xrange(n):
+            # 把P固定，更新Q
+            temp = (np.dot(P.T, P) + beta * np.eye(K)).I
+            temp1 = temp * P.T * R[:, j]
+            Q[j, :] = temp1.T
         for i in xrange(m):
-            for j in xrange(n):
-                if R[i, j] > 0:
-                    # 把P固定，更新Q
-                    temp = (np.dot(P.T, P) + beta * np.eye(K)).I
-                    temp1 = temp * P.T * R[:, j]
-                    Q[j, :] = temp1.T
             # Q固定 更新P
             P[i, :] = ((np.dot(Q.T, Q) + beta * np.eye(K)).I * Q.T * R[i, :].T).T
         eR = np.dot(P, Q.T)
@@ -70,7 +78,7 @@ def als(R, K, steps=5000, beta=0.01):
         if e < 0.001:
             print 'loss:%f' % e
             break
-        if step % 500 == 0:
+        if step % 1000 == 0:
             print 'loss:%f' % e
     return P, Q
 

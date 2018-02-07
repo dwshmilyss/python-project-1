@@ -203,6 +203,9 @@ class ALS(object):
         self.item_vectors = np.random.normal(size=(items, self.num_factors))\
                                      .astype(self.dtype)
 
+        '''
+        use_native 是否是隐式矩阵分解 true:没有评分
+        '''
         self.solver = implicit.als.least_squares if self.use_native else least_squares
 
         self.fit_partial(Cui)
