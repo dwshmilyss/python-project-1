@@ -23,5 +23,5 @@ if (default_encoding != sys.getdefaultencoding()):
 
 
 if __name__ == "__main__":
-
+    print "aaa"
     pass
