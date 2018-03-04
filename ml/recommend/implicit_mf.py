@@ -204,7 +204,7 @@ class ALS(object):
                                      .astype(self.dtype)
 
         '''
-        use_native 是否是隐式矩阵分解 true:没有评分
+        use_native 是否使用原生的算法（这个原生和自定义的区别还有待观察）
         '''
         self.solver = implicit.als.least_squares if self.use_native else least_squares
 

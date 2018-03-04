@@ -17,6 +17,8 @@ import numpy as np
 import sys
 from pylab import *
 
+import implicit_mf
+
 default_encoding = "utf-8"
 if (default_encoding != sys.getdefaultencoding()):
     reload(sys)
@@ -74,7 +76,7 @@ def als(R, K, steps=5000, beta=0.01):
                     sum += pow((R[i, j] - eR[i, j]), 2)
                     cn += 1
                     pass
-        e = sqrt(sum/cn)
+        e = sqrt(sum / cn)
         if e < 0.001:
             print 'loss:%f' % e
             break
@@ -185,6 +187,8 @@ def lmf(data, K):
     return u, v
 
 
+import scipy.sparse as sparse
+
 if __name__ == "__main__":
     # 原始评分矩阵
     R = load_data("./data/als_test.txt")
@@ -192,13 +196,31 @@ if __name__ == "__main__":
     # result = np.dot(U,V)
     # print result
 
-
     #
     R = np.mat(R)
-    K = 2
-    U, V = als(R, K)
-    result = np.dot(U, V.T)
-    print result
+    A = np.dot(R,R.T)
+
+    print A
+
+
+    print A.I
+
+    print np.linalg.inv(A)
+
+    # print np.dot(R,R.I)
+
+    # K = 2
+    # U, V = als(R, K)
+    # result = np.dot(U, V.T)
+
+    # row = np.array([0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4])
+    # col = np.array([0, 1, 3, 0, 3, 0, 1, 3, 0, 3, 1, 2, 3])
+    # data = np.array([5, 3, 1, 4, 1, 1, 1, 5, 1, 4, 1, 5, 4])
+    # Cui = sparse.coo_matrix((data, (row, col)),shape=(5,4), dtype=np.float64)
+    # print(Cui)
+    # U, V = implicit_mf.alternating_least_squares(Cui, factors=K)
+    # result = np.dot(U, V.T)
+    # print result
 
     # n = len(result)
     # x = range(n)
