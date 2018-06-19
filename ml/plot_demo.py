@@ -41,7 +41,7 @@ if __name__ == "__main__":
     ax.plot(a, c + d, 'k', label='Total message length')
 
     '''
-    	right
+    right
 	center left
 	upper right
 	lower right

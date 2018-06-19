@@ -16,8 +16,8 @@
 import cPickle
 import gzip
 import os
-import sys
 import time
+import sys
 
 import numpy
 
@@ -331,7 +331,37 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
                           os.path.split(__file__)[1] +
                           ' ran for %.1fs' % ((end_time - start_time)))
 
+from numpy import *
+import operator
+from os import listdir
+
+'''
+fileName 数据集文件名
+numberOfFeature 特征个数
+'''
+def getDataSet(fileName,numberOfFeature):
+    fr = open(fileName)
+    cn = len(fr.readlines())
+    mat = zeros((cn,numberOfFeature))
+    labelVector = []
+    idx = 0
+    for line in fr.readlines():
+        line = line.strip()
+        temp = line.split(",")
+        #list类型这样操作错误
+        mat[idx,:] = temp[0:numberOfFeature]
+        if temp[-1] == "Iris-setosa":
+            labelVector.append(1)
+        elif temp[-1] == "Iris-versicolor":
+            labelVector.append(2)
+        elif temp[-1] == "Iris-virginica":
+            labelVector.append(3)
+        else:
+            labelVector.append(4)
+    return mat,labelVector
+
 if __name__ == "__main__":
     # load_data('D:/10000347/Downloads/machine_learning/data/mnist/mnist.pkl.gz');
-    sgd_optimization_mnist(dataset='D:/10000347/Downloads/machine_learning/data/mnist/mnist.pkl.gz')
+    # sgd_optimization_mnist(dataset='D:/10000347/Downloads/machine_learning/data/mnist/mnist.pkl.gz')
+    dataMat, labelMat = getDataSet('./data/iris/iris.data', 4)
     pass
