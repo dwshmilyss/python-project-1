@@ -74,5 +74,6 @@ def test_socket():
 
 
 if __name__ == "__main__":
-    test_socket()
+    # test_socket()
+    print 2 * +-2
     pass
