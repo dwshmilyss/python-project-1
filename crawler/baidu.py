@@ -14,6 +14,7 @@
 """
 import os
 import urllib
+from six.moves import urllib
 import httplib2
 import webbrowser as web
 from selenium import webdriver
@@ -89,7 +90,23 @@ class Main():
     def __init__(self):
         pass
 
+def test3():
+    response = urllib.request.urlopen('http://www.baidu.com')
+    print(response.read().decode('utf-8'))
+
+def test4():
+    driver = webdriver.Chrome(executable_path="D:/10000347/Downloads/chromedriver_win32/chromedriver.exe")
+    driver.get("http://www.python.org")
+    assert "Python" in driver.title
+    # 获取页面中的某个元素（根据element_name）
+    elem = driver.find_element_by_name("q")
+    # 输入文本
+    elem.send_keys("pycon")
+    # 模拟点击了回车
+    elem.send_keys(Keys.RETURN)
+    # driver.page_source 返回html代码
+    print driver.page_source
 
 if __name__ == "__main__":
-    test2()
+    test4()
     pass
