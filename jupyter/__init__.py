@@ -30,4 +30,12 @@ class Main():
 
 
 if __name__ == "__main__":
+    print(sys.getsizeof(u""))
+    print(sys.getsizeof(u"a"))
+    print(sys.getsizeof(u"b"))
+    print(u"a".__sizeof__())
+    print(u"b".__sizeof__())
+    print(sys.getsizeof(b""))
+    print(sys.getsizeof(b"a"))
+    print(sys.getsizeof(b"b"))
     pass
